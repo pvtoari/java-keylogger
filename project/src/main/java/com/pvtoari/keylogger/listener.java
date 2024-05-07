@@ -9,7 +9,6 @@ import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 
 public class listener implements NativeKeyListener {
-	private String logging = "";
 	private PrintWriter pw;
 
 	public listener() {
@@ -43,9 +42,6 @@ public class listener implements NativeKeyListener {
 			GlobalScreen.registerNativeHook();
 		}
 		catch (NativeHookException ex) {
-			System.err.println("There was a problem registering the native hook.");
-			System.err.println(ex.getMessage());
-
 			System.exit(1);
 		}
 
