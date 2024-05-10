@@ -34,7 +34,6 @@ public class Listener implements NativeKeyListener {
 	
 	public String parseCap(String s) {
 		String res = "";
-		res = s;
 
 		if(!isLatinLetter(s) && isShift) {
 			switch(s) {
@@ -68,7 +67,6 @@ public class Listener implements NativeKeyListener {
 	}
 
 	public void nativeKeyPressed(NativeKeyEvent e) {
-
 		this.counting++;
 		String toAppend = NativeKeyEvent.getKeyText(e.getKeyCode());
 
