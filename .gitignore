@@ -2,4 +2,7 @@
 *.jar
 *.lst
 *.txt
+*.exe
+*.properties
+*.dll
 /target/

